@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import { fetchCoffeeShopsData } from "../lib/coffee-stores";
+import useTrackLocation from "../hooks/use-track-location.hook";
 
 import Banner from "../components/banner/banner";
 import Card from "../components/card/card";
@@ -15,10 +16,15 @@ export async function getStaticProps(context) {
 }
 
 export default function Home(props) {
+  const { latLong, handleTrackLocation, locationErrMsg, isFindingLocation  } = useTrackLocation();
+
+  console.log({ latLong, locationErrMsg });
+
   const handleBannerBtnOnClick = () => {
     console.log("hi banner btn");
+    handleTrackLocation();
   };
-  
+
   return (
     <div className={styles.container}>
       <Head>
@@ -28,9 +34,10 @@ export default function Home(props) {
       </Head>
       <main className={styles.main}>
         <Banner
-          buttonText={"View Coffee shop nearby"}
+          buttonText={isFindingLocation ? "Loading..." : "View Coffee shop nearby"}
           handleOnClick={handleBannerBtnOnClick}
         />
+        {locationErrMsg && <p>Something went wrong: {locationErrMsg}</p>}
         <div className={styles.heroImage}>
           <Image
             src="/static/hero-image.png"
@@ -40,7 +47,7 @@ export default function Home(props) {
           />
         </div>
         {props.coffeeStores.length > 0 && (
-          <>
+          <div className={styles.sectionWrapper}>
             <h2 className={styles.heading2}>Toronto stores</h2>
             <div className={styles.cardLayout}>
               {props.coffeeStores.map((coffeeStore) => {
@@ -56,7 +63,7 @@ export default function Home(props) {
                 />
               )})}
             </div>
-          </>
+          </div>
         )}
       </main>
     </div>
