@@ -10,11 +10,12 @@ import styles from "../../styles/coffee-store.module.css";
 export async function getStaticProps(staticProps) {
   const params = staticProps.params;
   const coffeeStores = await fetchCoffeeShopsData();
+  const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+    return coffeeStore.fsq_id.toString() === params.id; //dynamic id
+  });
   return {
     props: {
-      coffeeStore: coffeeStores.find((coffeeStore) => {
-        return coffeeStore.fsq_id.toString() === params.id; //dynamic id
-      }),
+      coffeeStore: findCoffeeStoreById ? findCoffeeStoreById : {},
     }, // will be passed to the page component as props
   };
 }
@@ -39,7 +40,7 @@ const CoffeeStore = (props) => {
   }
 
   const { name, location, imgData } = props.coffeeStore;
-  const imgUrl = `${imgData.prefix}original${imgData.suffix}`;
+  const imgUrl = imgData && `${imgData.prefix}original${imgData.suffix}`;
 
   const handleUpvoteButton = () => {
     console.log("Handle upvote");
@@ -75,9 +76,9 @@ const CoffeeStore = (props) => {
         <div className={cls("glass", styles.col2)}>
           <div className={styles.iconWrapper}>
             <Image src="/static/icons/places.svg" width="24" height="24" />
-            <p className={styles.text}>{location.address}</p>
+            <p className={styles.text}>{location?.address}</p>
           </div>
-          {location.neighborhood && (
+          {location?.neighborhood && (
             <div className={styles.iconWrapper}>
               <Image src="/static/icons/nearMe.svg" width="24" height="24" />
               <p className={styles.text}>{location.neighborhood}</p>

@@ -1,24 +1,44 @@
+import { useContext, useEffect, useState } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import { fetchCoffeeShopsData } from "../lib/coffee-stores";
 import useTrackLocation from "../hooks/use-track-location.hook";
+import { ACTION_TYPES, StoreContext } from "../store/coffee-store.context";
 
 import Banner from "../components/banner/banner";
 import Card from "../components/card/card";
 
 export async function getStaticProps(context) {
   const data = await fetchCoffeeShopsData();
-  console.log(data)
+
   return {
     props: { coffeeStores: data }, // will be passed to the page component as props
   };
 }
 
 export default function Home(props) {
-  const { latLong, handleTrackLocation, locationErrMsg, isFindingLocation  } = useTrackLocation();
+  const { handleTrackLocation, locationErrMsg, isFindingLocation  } = useTrackLocation();
+  const [nearbyShopsErr, setNearbyShopsErr] = useState('');
 
-  console.log({ latLong, locationErrMsg });
+  const { dispatch, state } = useContext(StoreContext);
+  const { latLong, coffeeStores } = state;
+
+  useEffect(async () => {
+    if(latLong) {
+      try {
+        const nearbyCoffeehops = await fetchCoffeeShopsData(latLong);
+        //setNearbyShops(nearbyCoffeehops);
+        dispatch({
+          type: ACTION_TYPES.SET_COFFEE_STORES,
+          payload: {coffeeStores: nearbyCoffeehops}
+        })
+      }catch(err) {
+        console.error(err);
+        setNearbyShopsErr(err.message);
+      }
+    }
+  }, [latLong]);
 
   const handleBannerBtnOnClick = () => {
     console.log("hi banner btn");
@@ -38,6 +58,7 @@ export default function Home(props) {
           handleOnClick={handleBannerBtnOnClick}
         />
         {locationErrMsg && <p>Something went wrong: {locationErrMsg}</p>}
+        {nearbyShopsErr && <p>Something went wrong: {nearbyShopsErr}</p>}
         <div className={styles.heroImage}>
           <Image
             src="/static/hero-image.png"
@@ -46,6 +67,25 @@ export default function Home(props) {
             alt="hero-image"
           />
         </div>
+        {coffeeStores.length > 0 && (
+          <div className={styles.sectionWrapper}>
+            <h2 className={styles.heading2}>Nearby stores</h2>
+            <div className={styles.cardLayout}>
+              {coffeeStores.map((coffeeStore) => {
+                const imgUrl = coffeeStore.imgData && `${coffeeStore.imgData.prefix}original${coffeeStore.imgData.suffix}`;
+               
+                return (
+                <Card
+                  key={coffeeStore.fsq_id}
+                  className={styles.card}
+                  name={coffeeStore.name}
+                  imgUrl={imgUrl || "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
+                  href={`/coffee-store/${coffeeStore.fsq_id}`}
+                />
+              )})}
+            </div>
+          </div>
+        )}
         {props.coffeeStores.length > 0 && (
           <div className={styles.sectionWrapper}>
             <h2 className={styles.heading2}>Toronto stores</h2>
