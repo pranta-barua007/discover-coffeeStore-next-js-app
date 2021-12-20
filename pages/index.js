@@ -27,12 +27,14 @@ export default function Home(props) {
   useEffect(async () => {
     if(latLong) {
       try {
-        const nearbyCoffeehops = await fetchCoffeeShopsData(latLong);
-        //setNearbyShops(nearbyCoffeehops);
+        const response = await fetch(`/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=9`);
+        const fetchedCoffeeStores = await response.json();
+
         dispatch({
           type: ACTION_TYPES.SET_COFFEE_STORES,
-          payload: {coffeeStores: nearbyCoffeehops}
-        })
+          payload: {coffeeStores: fetchedCoffeeStores}
+        });
+        setNearbyShopsErr('');
       }catch(err) {
         console.error(err);
         setNearbyShopsErr(err.message);
