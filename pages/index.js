@@ -74,15 +74,14 @@ export default function Home(props) {
             <h2 className={styles.heading2}>Nearby stores</h2>
             <div className={styles.cardLayout}>
               {coffeeStores.map((coffeeStore) => {
-                const imgUrl = coffeeStore.imgData && `${coffeeStore.imgData.prefix}original${coffeeStore.imgData.suffix}`;
-               
+                const { fsq_id, name, imgUrl } = coffeeStore;
                 return (
                 <Card
-                  key={coffeeStore.fsq_id}
+                  key={fsq_id}
                   className={styles.card}
-                  name={coffeeStore.name}
+                  name={name}
                   imgUrl={imgUrl || "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
-                  href={`/coffee-store/${coffeeStore.fsq_id}`}
+                  href={`/coffee-store/${fsq_id}`}
                 />
               )})}
             </div>
@@ -93,15 +92,15 @@ export default function Home(props) {
             <h2 className={styles.heading2}>Toronto stores</h2>
             <div className={styles.cardLayout}>
               {props.coffeeStores.map((coffeeStore) => {
-                const imgUrl = `${coffeeStore.imgData.prefix}original${coffeeStore.imgData.suffix}`;
-               
+                const { fsq_id, name, imgUrl } = coffeeStore;
+
                 return (
                 <Card
-                  key={coffeeStore.fsq_id}
+                  key={fsq_id}
                   className={styles.card}
-                  name={coffeeStore.name}
+                  name={name}
                   imgUrl={imgUrl || "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"}
-                  href={`/coffee-store/${coffeeStore.fsq_id}`}
+                  href={`/coffee-store/${fsq_id}`}
                 />
               )})}
             </div>
