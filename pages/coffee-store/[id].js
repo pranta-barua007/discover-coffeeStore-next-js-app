@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import useSWR from "swr";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Head from "next/head";
@@ -38,6 +39,7 @@ export async function getStaticPaths() {
 
 const CoffeeStore = (initialProps) => {
   const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
+  const [votingCount, setVotingCount] = useState(1);
 
   const router = useRouter();
   if (router.isFallback) {
@@ -46,10 +48,6 @@ const CoffeeStore = (initialProps) => {
   const id = router.query.id;
   
   const { name, location, imgUrl } = coffeeStore;
-
-  const handleUpvoteButton = () => {
-    console.log("Handle upvote");
-  };
 
   const {
     state: { coffeeStores },
@@ -73,7 +71,7 @@ const CoffeeStore = (initialProps) => {
         })
       });
       const dbCoffeeStore = await response.json();
-      console.log(dbCoffeeStore);
+      console.log({dbCoffeeStore});
     }catch(err) {
       console.error(err);
     }
@@ -96,6 +94,33 @@ const CoffeeStore = (initialProps) => {
       handleCreateCoffeeStore(initialProps.coffeeStore);
     }
   }, [id, initialProps, initialProps.coffeeStore]);
+
+  const fetcher = (...args) => fetch(...args).then(res => res.json());
+  const {data, error} = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
+ 
+  useEffect(() => {
+    if(data && data.length > 0) {
+      console.log("data from swr", data[0]);
+      const coffeeDataFromDb = {
+        location: {
+          address: data[0].address,
+          neighborhood: data[0].neighborhood,
+        },
+        ...data[0]
+      };
+      setCoffeeStore(coffeeDataFromDb);
+      setVotingCount(data[0].voting);
+    }
+  }, [data]);
+
+  const handleUpvoteButton = () => {
+    let count = votingCount + 1;
+    setVotingCount(count);
+  };
+
+  if(error) {
+    return <div>Something went wrong</div>
+  }
 
   return (
     <div className={styles.layout}>
@@ -139,7 +164,7 @@ const CoffeeStore = (initialProps) => {
           )}
           <div className={styles.iconWrapper}>
             <Image src="/static/icons/star.svg" width="24" height="24" />
-            <p className={styles.text}>1</p>
+            <p className={styles.text}>{votingCount}</p>
           </div>
           <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
             Up Vote!
