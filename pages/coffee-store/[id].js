@@ -68,7 +68,6 @@ const CoffeeStore = (initialProps) => {
         })
       });
       const dbCoffeeStore = await response.json();
-      console.log({dbCoffeeStore});
     }catch(err) {
       console.error(err);
     }
