@@ -55,16 +55,47 @@ const CoffeeStore = (initialProps) => {
     state: { coffeeStores },
   } = useContext(StoreContext);
 
+  const handleCreateCoffeeStore = async (coffeeStoreData) => {
+    const { fsq_id, name, imgUrl, location } = coffeeStoreData;
+    try {
+      const response = await fetch('/api/createCoffeeStore', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fsq_id,
+          name,
+          voting: 0,
+          neighborhood: Array.isArray(location?.neighborhood) ? location?.neighborhood[0] : location?.neighborhood || "",
+          address: location?.address || "",
+          imgUrl
+        })
+      });
+      const dbCoffeeStore = await response.json();
+      console.log(dbCoffeeStore);
+    }catch(err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     if (isEmpty(initialProps.coffeeStore)) {
       if (coffeeStores.length > 0) {
-        const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+        const findCoffeeStoreFromContext = coffeeStores.find((coffeeStore) => {
           return coffeeStore.fsq_id.toString() === id;
         });
-        setCoffeeStore(findCoffeeStoreById);
+
+        if(findCoffeeStoreFromContext) {
+          setCoffeeStore(findCoffeeStoreFromContext);
+          handleCreateCoffeeStore(findCoffeeStoreFromContext);
+        }
       }
+    }else {
+      //SSG
+      handleCreateCoffeeStore(initialProps.coffeeStore);
     }
-  });
+  }, [id, initialProps, initialProps.coffeeStore]);
 
   return (
     <div className={styles.layout}>

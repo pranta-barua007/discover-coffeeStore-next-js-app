@@ -1,23 +1,20 @@
-const { table, getMinifiedRecords } = require("../../lib/airtable");
+const { table, getMinifiedRecords, findRecordByFilter } = require("../../lib/airtable");
 
 const createCoffeeStore = async (req, res) => {
     try{
-        const { id, name, address, neighborhood, voting, imgUrl } = req.body;
+        const { fsq_id, name, address, neighborhood, voting, imgUrl } = req.body;
         if(req.method === 'POST') {
-            if(id) {       
-                const findCoffeeStoreRecords = await table.select({
-                    filterByFormula: `id=${id}`
-                }).firstPage();
+            if(fsq_id) {       
+                const records = await findRecordByFilter(fsq_id);
         
-                if(findCoffeeStoreRecords.length !== 0) {
-                    const records = getMinifiedRecords(findCoffeeStoreRecords);
-                    return res.json(records)
+                if(records.length !== 0) {
+                    return res.json(records);
                 }else {
                     if(name) {
                         const createRecords = await table.create([
                             {
                                 fields: {
-                                    id,
+                                    fsq_id,
                                     name,
                                     address,
                                     neighborhood,
