@@ -38,16 +38,13 @@ export async function getStaticPaths() {
 }
 
 const CoffeeStore = (initialProps) => {
-  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
-  const [votingCount, setVotingCount] = useState(1);
-
   const router = useRouter();
   if (router.isFallback) {
     return <div>Loading....</div>;
   }
   const id = router.query.id;
-  
-  const { name, location, imgUrl } = coffeeStore;
+
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
 
   const {
     state: { coffeeStores },
@@ -95,12 +92,15 @@ const CoffeeStore = (initialProps) => {
     }
   }, [id, initialProps, initialProps.coffeeStore]);
 
+  const { name, location, imgUrl } = coffeeStore;
+
+  const [votingCount, setVotingCount] = useState(0);
+
   const fetcher = (...args) => fetch(...args).then(res => res.json());
   const {data, error} = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
  
   useEffect(() => {
     if(data && data.length > 0) {
-      console.log("data from swr", data[0]);
       const coffeeDataFromDb = {
         location: {
           address: data[0].address,
@@ -113,9 +113,25 @@ const CoffeeStore = (initialProps) => {
     }
   }, [data]);
 
-  const handleUpvoteButton = () => {
-    let count = votingCount + 1;
-    setVotingCount(count);
+  const handleUpvoteButton = async () => {
+    try {
+      const response = await fetch('/api/upvoteCoffeeStoreById', {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id
+        })
+      });
+      const dbCoffeeStore = await response.json();
+      if(dbCoffeeStore && dbCoffeeStore.length > 0) {
+        let count = votingCount + 1;
+        setVotingCount(count);
+      }
+    }catch(err) {
+      console.error("Error upvoting", err);
+    } 
   };
 
   if(error) {
