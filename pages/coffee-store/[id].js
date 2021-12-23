@@ -41,7 +41,7 @@ const CoffeeStore = (initialProps) => {
   const router = useRouter();
   const id = router.query.id;
 
-  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore || {});
 
   const {
     state: { coffeeStores },
@@ -136,7 +136,7 @@ const CoffeeStore = (initialProps) => {
     return <div>Something went wrong</div>
   }
 
-  const { name, location, imgUrl } = coffeeStore;
+  const { name = '' , location = {}, imgUrl = '' } = coffeeStore; //destructuring the values after everything finishes loading
   
   return (
     <div className={styles.layout}>
