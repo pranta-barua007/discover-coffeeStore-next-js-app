@@ -86,9 +86,7 @@ const CoffeeStore = (initialProps) => {
       //SSG
       handleCreateCoffeeStore(initialProps.coffeeStore);
     }
-  }, [id, initialProps, initialProps.coffeeStore]);
-
-  const { name, location, imgUrl } = coffeeStore;
+  }, [id, initialProps, initialProps.coffeeStore, coffeeStores]);
 
   const [votingCount, setVotingCount] = useState(0);
 
@@ -129,15 +127,17 @@ const CoffeeStore = (initialProps) => {
       console.error("Error upvoting", err);
     } 
   };
-
+  
   if (router.isFallback) {
     return <div>Loading....</div>;
   }
-
+  
   if(error) {
     return <div>Something went wrong</div>
   }
 
+  const { name, location, imgUrl } = coffeeStore;
+  
   return (
     <div className={styles.layout}>
       <Head>
@@ -168,18 +168,18 @@ const CoffeeStore = (initialProps) => {
         <div className={cls("glass", styles.col2)}>
           {location?.address && (
             <div className={styles.iconWrapper}>
-              <Image src="/static/icons/places.svg" width="24" height="24" />
+              <Image src="/static/icons/places.svg" width="24" height="24" alt="place-icon"/>
               <p className={styles.text}>{location.address}</p>
             </div>
           )}
           {location?.neighborhood && (
             <div className={styles.iconWrapper}>
-              <Image src="/static/icons/nearMe.svg" width="24" height="24" />
+              <Image src="/static/icons/nearMe.svg" width="24" height="24" alt="nearme-icon"/>
               <p className={styles.text}>{location.neighborhood}</p>
             </div>
           )}
           <div className={styles.iconWrapper}>
-            <Image src="/static/icons/star.svg" width="24" height="24" />
+            <Image src="/static/icons/star.svg" width="24" height="24" alt="start-icon"/>
             <p className={styles.text}>{votingCount}</p>
           </div>
           <button className={styles.upvoteButton} onClick={handleUpvoteButton}>

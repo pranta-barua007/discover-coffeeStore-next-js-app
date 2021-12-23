@@ -22,25 +22,30 @@ export default function Home(props) {
   const [nearbyShopsErr, setNearbyShopsErr] = useState('');
 
   const { dispatch, state } = useContext(StoreContext);
+
   const { latLong, coffeeStores } = state;
 
-  useEffect(async () => {
+  useEffect(() => {
     if(latLong) {
       try {
-        const response = await fetch(`/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=9`);
-        const fetchedCoffeeStores = await response.json();
+        const fetchedCoffeeStores = async () => {
+          const response = await fetch(`/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=9`);
+          const fetchedData = await response.json();
 
-        dispatch({
-          type: ACTION_TYPES.SET_COFFEE_STORES,
-          payload: {coffeeStores: fetchedCoffeeStores}
-        });
-        setNearbyShopsErr('');
+          dispatch({
+            type: ACTION_TYPES.SET_COFFEE_STORES,
+            payload: {coffeeStores: fetchedData}
+          });
+          setNearbyShopsErr('');
+        }
+
+        fetchedCoffeeStores();
       }catch(err) {
         console.error(err);
         setNearbyShopsErr(err.message);
       }
     }
-  }, [latLong]);
+  }, [latLong, dispatch]);
 
   const handleBannerBtnOnClick = () => {
     handleTrackLocation();
