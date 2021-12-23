@@ -39,9 +39,6 @@ export async function getStaticPaths() {
 
 const CoffeeStore = (initialProps) => {
   const router = useRouter();
-  if (router.isFallback) {
-    return <div>Loading....</div>;
-  }
   const id = router.query.id;
 
   const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
@@ -132,6 +129,10 @@ const CoffeeStore = (initialProps) => {
       console.error("Error upvoting", err);
     } 
   };
+
+  if (router.isFallback) {
+    return <div>Loading....</div>;
+  }
 
   if(error) {
     return <div>Something went wrong</div>
